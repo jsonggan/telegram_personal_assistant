@@ -1,4 +1,4 @@
-package com.assistant.telegrambot.service;
+package com.assistant.telegrambot.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,11 +16,11 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 public class TelegramBotService implements SpringLongPollingBot, LongPollingSingleThreadUpdateConsumer {
   private final TelegramClient telegramClient;
   private final String botToken;
-  private final OpenAIService openAIService;
+  private final OpenAIClientService openAIService;
 
   @Autowired
   public TelegramBotService(@Value("${telegram.bot.token}") String botToken,
-      OpenAIService openAIService) {
+      OpenAIClientService openAIService) {
     this.botToken = botToken;
     this.openAIService = openAIService;
     telegramClient = new OkHttpTelegramClient(botToken);

@@ -1,4 +1,4 @@
-package com.assistant.telegrambot.service;
+package com.assistant.telegrambot.services;
 
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.stereotype.Service;

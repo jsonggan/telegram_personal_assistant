@@ -6,7 +6,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
-import com.assistant.telegrambot.service.WeatherService;
+import com.assistant.telegrambot.services.WeatherService;
 
 @SpringBootApplication
 public class AssistantTelegramBotApplication {
