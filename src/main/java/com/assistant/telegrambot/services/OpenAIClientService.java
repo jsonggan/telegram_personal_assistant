@@ -1,4 +1,4 @@
-package com.assistant.telegrambot.service;
+package com.assistant.telegrambot.services;
 
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatModel;
@@ -10,12 +10,12 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 
 @Service
-public class OpenAIService {
+public class OpenAIClientService {
 
   private final ChatClient chatClient;
 
   @Autowired
-  public OpenAIService(ChatModel chatModel) {
+  public OpenAIClientService(ChatModel chatModel) {
     this.chatClient = ChatClient.builder(chatModel).build();
   }
 
