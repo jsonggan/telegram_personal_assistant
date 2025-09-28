@@ -13,7 +13,6 @@ public class SecurityConfig {
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    // Completely disable security for now to test MCP server
     http
         .authorizeHttpRequests(authz -> authz.anyRequest().permitAll())
         .csrf(AbstractHttpConfigurer::disable)
