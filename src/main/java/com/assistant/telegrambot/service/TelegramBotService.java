@@ -1,5 +1,6 @@
 package com.assistant.telegrambot.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
@@ -15,9 +16,13 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 public class TelegramBotService implements SpringLongPollingBot, LongPollingSingleThreadUpdateConsumer {
   private final TelegramClient telegramClient;
   private final String botToken;
+  private final OpenAIService openAIService;
 
-  public TelegramBotService(@Value("${telegram.bot.token}") String botToken) {
+  @Autowired
+  public TelegramBotService(@Value("${telegram.bot.token}") String botToken,
+      OpenAIService openAIService) {
     this.botToken = botToken;
+    this.openAIService = openAIService;
     telegramClient = new OkHttpTelegramClient(botToken);
   }
 
@@ -33,22 +38,48 @@ public class TelegramBotService implements SpringLongPollingBot, LongPollingSing
 
   @Override
   public void consume(Update update) {
-    // We check if the update has a message and the message has text
     if (update.hasMessage() && update.getMessage().hasText()) {
-      // Set variables
-      String message_text = update.getMessage().getText();
-      long chat_id = update.getMessage().getChatId();
+      String userMessage = update.getMessage().getText();
+      long chatId = update.getMessage().getChatId();
+      String userName = update.getMessage().getFrom().getFirstName();
 
-      SendMessage message = SendMessage // Create a message object
+      String aiResponse = generateAIResponse(userMessage, userName);
+
+      SendMessage message = SendMessage
           .builder()
-          .chatId(chat_id)
-          .text("You said: " + message_text)
+          .chatId(chatId)
+          .text(aiResponse)
           .build();
+
       try {
-        telegramClient.execute(message); // Sending our message object to user
+        telegramClient.execute(message);
       } catch (TelegramApiException e) {
         e.printStackTrace();
+        sendErrorMessage(chatId);
       }
+    }
+  }
+
+  private String generateAIResponse(String userMessage, String userName) {
+    try {
+      String contextualMessage = String.format("User %s says: %s", userName, userMessage);
+
+      return openAIService.generateResponse(contextualMessage);
+    } catch (Exception e) {
+      return "Hello! I'm your AI assistant. I'm having some technical difficulties right now, but I'm here to help you. Please try your message again.";
+    }
+  }
+
+  private void sendErrorMessage(long chatId) {
+    try {
+      SendMessage errorMessage = SendMessage
+          .builder()
+          .chatId(chatId)
+          .text("I apologize, but I'm experiencing some technical difficulties. Please try again in a moment.")
+          .build();
+      telegramClient.execute(errorMessage);
+    } catch (TelegramApiException e) {
+      e.printStackTrace();
     }
   }
 }
